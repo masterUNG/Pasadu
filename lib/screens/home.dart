@@ -9,6 +9,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   // Explicit
   bool statusRemember = false; // false => Non Save, true => Save Member
+  final formKey = GlobalKey<FormState>();
+  String emailString, passwordString;
 
   // Method
 
@@ -48,6 +50,15 @@ class _HomeState extends State<Home> {
           helperStyle: TextStyle(color: MyStyle().textColor),
           hintText: 'you@email.com',
         ),
+        validator: (String value) {
+          if (!((value.contains('@')) && (value.contains('.')))) {
+            return 'Please Keep Email Format';
+          } else {
+            return null;
+          }
+        },onSaved: (value){
+          emailString = value.trim();
+        },
       ),
     );
   }
@@ -62,7 +73,15 @@ class _HomeState extends State<Home> {
           icon: Icon(Icons.lock),
           labelText: 'Password :',
           helperText: 'Type Your Password',
-        ),
+        ),validator: (value){
+          if (value.isEmpty) {
+            return 'Please Type Password In The Blank';
+          } else {
+            return null;
+          }
+        },onSaved: (value){
+          passwordString = value.trim();
+        },
       ),
     );
   }
@@ -78,7 +97,12 @@ class _HomeState extends State<Home> {
           'Login',
           style: TextStyle(color: Colors.white),
         ),
-        onPressed: () {},
+        onPressed: () {
+          if (formKey.currentState.validate()) {
+            formKey.currentState.save();
+            print('email = $emailString, password = $passwordString');
+          }
+        },
       ),
     );
   }
@@ -116,19 +140,23 @@ class _HomeState extends State<Home> {
         child: Container(
           decoration: BoxDecoration(
             gradient: RadialGradient(
-              colors: [Colors.white, MyStyle().mainColor],radius: 0.8,
+              colors: [Colors.white, MyStyle().mainColor],
+              radius: 0.8,
             ),
           ),
           child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                showLogoAndName(),
-                userText(),
-                passwordText(),
-                rememberCheck(),
-                loginButton(),
-              ],
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  showLogoAndName(),
+                  userText(),
+                  passwordText(),
+                  rememberCheck(),
+                  loginButton(),
+                ],
+              ),
             ),
           ),
         ),
