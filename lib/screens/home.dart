@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:pasadu/screens/my_service.dart';
 import 'package:pasadu/screens/my_style.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -12,9 +15,26 @@ class _HomeState extends State<Home> {
   // Explicit
   bool statusRemember = false; // false => Non Save, true => Save Member
   final formKey = GlobalKey<FormState>();
-  String emailString, passwordString;
+  String emailString, passwordString, runrecnoString;
 
   // Method
+  @override
+  void initState() {
+    super.initState();
+    checkStatus();
+  }
+
+  Future checkStatus() async {
+    try {
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      bool currentRemember = sharedPreferences.getBool('remember');
+      if (currentRemember) {
+        runrecnoString = sharedPreferences.getString('runrecno');
+        routeToMyService();
+      }
+    } catch (e) {}
+  }
 
   Widget showLogo() {
     return Container(
@@ -120,30 +140,41 @@ class _HomeState extends State<Home> {
     Response response = await get(urlAPI);
     var result = json.decode(response.body);
     print('result = $result');
-    
 
     if (result.toString() == 'null') {
-      myAlert('User False', 'No $emailString in my Database');
+      myAlert('Authen False', 'Please Cheack User or Password Agains');
     } else {
-
       for (var myData in result) {
-        // print('myData = $myData');
+        runrecnoString = myData['runrecno'];
+        print('runrecno = $runrecnoString');
 
-        // String truePassword = myData['reg_unmd5'];
-        // print('turePassword = $truePassword');
+        if (statusRemember) {
+          // Save runrecno
+          saveUserThread();
+        }
 
-        // if (passwordString == truePassword) {
-        //   print('Authen Success');
-        // } else {
-        //   myAlert('Password Flase', 'Please Try Agains Password');
-        // }
-
-
-
+        routeToMyService();
       }
-
-
     }
+  }
+
+  void routeToMyService() {
+    MaterialPageRoute materialPageRoute =
+        MaterialPageRoute(builder: (BuildContext context) {
+      return MyService(
+        keyRunrecno: runrecnoString,
+      );
+    });
+    Navigator.of(context).pushAndRemoveUntil(materialPageRoute,
+        (Route<dynamic> route) {
+      return false;
+    });
+  }
+
+  Future<void> saveUserThread() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.setString('runrecno', runrecnoString);
+    sharedPreferences.setBool('remember', statusRemember);
   }
 
   Widget showTitle(String title) {
@@ -189,9 +220,17 @@ class _HomeState extends State<Home> {
         controlAffinity: ListTileControlAffinity.leading,
         title: Text('Remember Me'),
         value: statusRemember,
-        onChanged: (bool value) {},
+        onChanged: (bool value) {
+          onRememberCheck(value);
+        },
       ),
     );
+  }
+
+  void onRememberCheck(bool value) {
+    setState(() {
+      statusRemember = value;
+    });
   }
 
   Widget showLogoAndName() {

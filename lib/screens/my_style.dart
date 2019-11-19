@@ -7,6 +7,8 @@ class MyStyle {
   Color textColor = Color.fromARGB(255, 255, 124, 36);
   Color mainColor = Color.fromARGB(0xff, 0x39, 0xb6, 0xcc);
 
+  String fontString = 'Mansalva';
+
 
 
   // Constructor
