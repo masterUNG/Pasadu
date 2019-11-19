@@ -115,11 +115,12 @@ class _HomeState extends State<Home> {
 
   Future<void> checkAuthen() async {
     String urlAPI =
-        'https://appdb.tisi.go.th/ForApp/getUserWhereUserEmailEad.php?isAdd=true&reg_email=$emailString';
+        'https://appdb.tisi.go.th/ForApp/getUserWhereUserEmailEad.php?isAdd=true&reg_email=$emailString&reg_unmd5=$passwordString';
 
     Response response = await get(urlAPI);
     var result = json.decode(response.body);
-    // print('result = $result');
+    print('result = $result');
+    
 
     if (result.toString() == 'null') {
       myAlert('User False', 'No $emailString in my Database');
@@ -128,14 +129,14 @@ class _HomeState extends State<Home> {
       for (var myData in result) {
         // print('myData = $myData');
 
-        String truePassword = myData['reg_unmd5'];
-        print('turePassword = $truePassword');
+        // String truePassword = myData['reg_unmd5'];
+        // print('turePassword = $truePassword');
 
-        if (passwordString == truePassword) {
-          print('Authen Success');
-        } else {
-          myAlert('Password Flase', 'Please Try Agains Password');
-        }
+        // if (passwordString == truePassword) {
+        //   print('Authen Success');
+        // } else {
+        //   myAlert('Password Flase', 'Please Try Agains Password');
+        // }
 
 
 
