@@ -76,8 +76,8 @@ class _MyServiceState extends State<MyService> {
         size: 36.0,
         color: Colors.green.shade800,
       ),
-      title: Text('Page1'),
-      subtitle: Text('Description of Page1'),
+      title: Text('Page 1'),
+      subtitle: Text('Description Page1'),
       onTap: () {
         setState(() {
           currentWidget = Page1();
@@ -90,15 +90,15 @@ class _MyServiceState extends State<MyService> {
   Widget menuPage2() {
     return ListTile(
       leading: Icon(
-        Icons.add_comment,
+        Icons.map,
         size: 36.0,
         color: Colors.blue.shade800,
       ),
-      title: Text('Page2'),
-      subtitle: Text('Description of Page2'),
+      title: Text('Show Map'),
+      subtitle: Text('Description of Map'),
       onTap: () {
         setState(() {
-          currentWidget = Page2();
+          currentWidget = MyMap();
         });
         Navigator.of(context).pop();
       },
