@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:location/location.dart';
 import '../models/marker_model.dart';
 import 'my_style.dart';
 
@@ -18,18 +19,43 @@ class _DetailJobState extends State<DetailJob> {
   // Explicit
   MarkerModel currentMarkerModel;
   File file;
-
-  // Hello Master Test 1234567890
+  LocationData currentLocationData;
+  LatLng currentLatLng;
 
   // Method
   @override
   void initState() {
     super.initState();
     currentMarkerModel = widget.markerModel;
+    findLatLng();
+  }
+
+  Future<void> findLatLng() async {
+    currentLocationData = await locationData();
+    print('Lat ======> ${currentLocationData.latitude}');
+    print('Lng ======> ${currentLocationData.longitude}');
+
+    setState(() {
+      currentLatLng =
+          LatLng(currentLocationData.latitude, currentLocationData.longitude);
+    });
+  }
+
+  Future<LocationData> locationData() async {
+    Location location = Location();
+
+    try {
+      return await location.getLocation();
+    } catch (e) {}
   }
 
   Widget showMapLocation() {
     LatLng latLng = LatLng(13.673473, 100.606713);
+
+    if (currentLatLng != null) {
+      latLng = currentLatLng;
+    }
+
     CameraPosition cameraPosition = CameraPosition(
       target: latLng,
       zoom: 16.0,
