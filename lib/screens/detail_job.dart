@@ -19,6 +19,8 @@ class _DetailJobState extends State<DetailJob> {
   MarkerModel currentMarkerModel;
   File file;
 
+  // Hello Master
+
   // Method
   @override
   void initState() {
