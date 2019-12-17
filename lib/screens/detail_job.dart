@@ -50,25 +50,26 @@ class _DetailJobState extends State<DetailJob> {
   }
 
   Widget showMapLocation() {
-    LatLng latLng = LatLng(13.673473, 100.606713);
-
-    if (currentLatLng != null) {
-      latLng = currentLatLng;
-    }
-
     CameraPosition cameraPosition = CameraPosition(
-      target: latLng,
+      target: currentLatLng,
       zoom: 16.0,
     );
 
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.4,
-      child: GoogleMap(
-        mapType: MapType.normal,
-        initialCameraPosition: cameraPosition,
-        onMapCreated: (GoogleMapController googleMapController) {},
-      ),
-    );
+    return currentLatLng == null
+        ? Container(
+            height: MediaQuery.of(context).size.height * 0.4,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          )
+        : Container(
+            height: MediaQuery.of(context).size.height * 0.4,
+            child: GoogleMap(
+              mapType: MapType.normal,
+              initialCameraPosition: cameraPosition,
+              onMapCreated: (GoogleMapController googleMapController) {},
+            ),
+          );
   }
 
   Widget cameraButton() {
