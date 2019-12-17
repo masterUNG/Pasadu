@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/marker_model.dart';
 import 'my_style.dart';
@@ -23,6 +24,23 @@ class _DetailJobState extends State<DetailJob> {
   void initState() {
     super.initState();
     currentMarkerModel = widget.markerModel;
+  }
+
+  Widget showMapLocation() {
+    LatLng latLng = LatLng(13.673473, 100.606713);
+    CameraPosition cameraPosition = CameraPosition(
+      target: latLng,
+      zoom: 16.0,
+    );
+
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.4,
+      child: GoogleMap(
+        mapType: MapType.normal,
+        initialCameraPosition: cameraPosition,
+        onMapCreated: (GoogleMapController googleMapController) {},
+      ),
+    );
   }
 
   Widget cameraButton() {
@@ -135,6 +153,8 @@ class _DetailJobState extends State<DetailJob> {
           showAddress(),
           showPic(),
           showButton(),
+          mySizeBox(),
+          showMapLocation(),
         ],
       ),
     );
