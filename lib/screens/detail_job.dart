@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:location/location.dart';
+import 'package:pasadu/screens/normal_dialog.dart';
 import '../models/marker_model.dart';
 import 'my_style.dart';
 
@@ -21,6 +23,9 @@ class _DetailJobState extends State<DetailJob> {
   File file;
   LocationData currentLocationData;
   LatLng currentLatLng;
+  CameraPosition cameraPosition;
+  String _descripPic, _dateTime, _time;
+  final formKey = GlobalKey<FormState>();
 
   // Method
   @override
@@ -28,6 +33,7 @@ class _DetailJobState extends State<DetailJob> {
     super.initState();
     currentMarkerModel = widget.markerModel;
     findLatLng();
+    print('currentLatLng ===========>>>>>> $currentLatLng');
   }
 
   Future<void> findLatLng() async {
@@ -50,10 +56,12 @@ class _DetailJobState extends State<DetailJob> {
   }
 
   Widget showMapLocation() {
-    CameraPosition cameraPosition = CameraPosition(
-      target: currentLatLng,
-      zoom: 16.0,
-    );
+    if (currentLatLng != null) {
+      cameraPosition = CameraPosition(
+        target: currentLatLng,
+        zoom: 16.0,
+      );
+    }
 
     return currentLatLng == null
         ? Container(
@@ -68,8 +76,21 @@ class _DetailJobState extends State<DetailJob> {
               mapType: MapType.normal,
               initialCameraPosition: cameraPosition,
               onMapCreated: (GoogleMapController googleMapController) {},
+              markers: myMarker(),
             ),
           );
+  }
+
+  Set<Marker> myMarker() {
+    return <Marker>[
+      Marker(
+          position: currentLatLng,
+          markerId: MarkerId('idUser'),
+          infoWindow: InfoWindow(
+            title: currentMarkerModel.traderName,
+            snippet: '${currentLatLng.latitude}, ${currentLatLng.longitude}',
+          ))
+    ].toSet();
   }
 
   Widget cameraButton() {
@@ -91,12 +112,14 @@ class _DetailJobState extends State<DetailJob> {
   }
 
   Future<void> cameraOrGallery(ImageSource imageSource) async {
-    var object = await ImagePicker.pickImage(
-        source: imageSource, maxWidth: 800.0, maxHeight: 600.0);
+    try {
+      var object = await ImagePicker.pickImage(
+          source: imageSource, maxWidth: 800.0, maxHeight: 600.0);
 
-    setState(() {
-      file = object;
-    });
+      setState(() {
+        file = object;
+      });
+    } catch (e) {}
   }
 
   Widget galleryButton() {
@@ -159,11 +182,156 @@ class _DetailJobState extends State<DetailJob> {
   }
 
   Widget showDate() {
-    return Text('dd/mm/yyyy');
+    DateTime dateTime = DateTime.now();
+    _dateTime = DateFormat('D MMMM yyyy').format(dateTime);
+
+    return Text(
+      'Date Time = $_dateTime',
+      style: MyStyle().h3TextStyle,
+    );
   }
 
   Widget showTime() {
-    return Text('HH:mm');
+    DateTime dateTime = DateTime.now();
+    _time = DateFormat('HH:mm').format(dateTime);
+
+    return Text(
+      'Time = $_time',
+      style: MyStyle().h2TextStyle,
+    );
+  }
+
+  Widget descripImage() {
+    return Container(
+      height: 40.0,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(13.0),
+        color: Colors.black12,
+      ),
+      child: Form(
+        key: formKey,
+        child: TextFormField(
+          onSaved: (String string) {
+            _descripPic = string.trim();
+          },
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            prefixIcon: Icon(Icons.photo),
+            hintText: 'Description Picture :',
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget confirmButton() {
+    return RaisedButton(
+      color: MyStyle().textColor,
+      child: Text(
+        'Confirm Data',
+        style: TextStyle(color: Colors.white),
+      ),
+      onPressed: () {
+        formKey.currentState.save();
+
+        if (file == null) {
+          normalDialog(context, 'ยังไม่เลือกรูปภาพ', 'กรุณา เลือกรูปภาพ ด้วย');
+        } else if (_descripPic.isEmpty) {
+          normalDialog(context, 'ยังไม่ใสรายละเอียดรูปภาพ',
+              'กรุณาใส รายละเอียดรูปภาพ ด้วยคะ');
+        } else {
+          myAlertDialog();
+        }
+      },
+    );
+  }
+
+  Widget showTitle() {
+    return ListTile(
+      leading: Icon(
+        Icons.account_box,
+        size: 36.0,
+        color: MyStyle().textColor,
+      ),
+      title: Text(
+        'Are You Sure ?',
+        style: MyStyle().h3TextStyle,
+      ),
+    );
+  }
+
+  Widget showDialogImage() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30.0),
+        image: DecorationImage(
+          image: FileImage(file),
+          fit: BoxFit.cover,
+        ),
+      ),
+      height: 120.0, width: 180.0,
+      // child: Image.file(file),
+    );
+  }
+
+  Widget showContent() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        showTraderName(),
+        showDialogImage(),
+        showText(_descripPic),
+        showText('latitude = ${currentLatLng.latitude}'),
+        showText('longtitude = ${currentLatLng.longitude}'),
+      ],
+    );
+  }
+
+  Widget saveButton() {
+    return FlatButton(
+      child: Text('Save'),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+  }
+
+  Widget cancelButton() {
+    return FlatButton(
+      child: Text('Cancel'),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+  }
+
+  Widget showText(String string) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        Container(width: 230.0,
+          child: Text(
+            string,
+            style: MyStyle().h3TextStyle,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> myAlertDialog() async {
+    showDialog(
+        context: context,
+        builder: (BuildContext buildContext) {
+          return AlertDialog(
+            title: showTitle(),
+            content: showContent(),
+            actions: <Widget>[
+              saveButton(),
+              cancelButton(),
+            ],
+          );
+        });
   }
 
   @override
@@ -181,9 +349,17 @@ class _DetailJobState extends State<DetailJob> {
           mySizeBox(),
           showAddress(),
           showPic(),
+          mySizeBox(),
+          descripImage(),
           showButton(),
           mySizeBox(),
           showMapLocation(),
+          mySizeBox(),
+          showDate(),
+          mySizeBox(),
+          showTime(),
+          mySizeBox(),
+          confirmButton(),
         ],
       ),
     );

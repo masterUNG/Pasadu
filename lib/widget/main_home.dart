@@ -4,11 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:pasadu/screens/detail_job.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../models/marker_model.dart';
-import '../models/marker_model.dart';
-import '../models/marker_model.dart';
-import '../screens/my_style.dart';
 import '../screens/my_style.dart';
 
 class MainHome extends StatefulWidget {
@@ -65,7 +61,7 @@ class _MainHomeState extends State<MainHome> {
 
   Widget showIcon() {
     return Icon(
-      Icons.build,
+      Icons.crop_din,
       color: Colors.red,
     );
   }
@@ -123,12 +119,26 @@ class _MainHomeState extends State<MainHome> {
                   showTraderName(index),
                   showTextType(index),
                   showTextAddress(index),
+                  addMoreImage(),
                 ],
               ),
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget addMoreImage() {
+    return Row(mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        IconButton(
+          icon: Icon(Icons.add_photo_alternate),
+          onPressed: () {
+            print('You Click Add More');
+          },
+        ),
+      ],
     );
   }
 
