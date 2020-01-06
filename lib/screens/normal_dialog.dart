@@ -21,20 +21,21 @@ Future<void> normalDialog(
       context: context,
       builder: (BuildContext buildContext) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
+          ),
           title: showTitle(title),
           content: Text(message),
-          actions: <Widget>[
-            okButton(context)
-          ],
+          actions: <Widget>[okButton(context)],
         );
       });
 }
 
 FlatButton okButton(BuildContext context) {
   return FlatButton(
-            child: Text('OK'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          );
+    child: Text('OK'),
+    onPressed: () {
+      Navigator.of(context).pop();
+    },
+  );
 }
