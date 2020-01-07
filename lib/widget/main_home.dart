@@ -100,13 +100,7 @@ class _MainHomeState extends State<MainHome> {
       itemBuilder: (BuildContext buildContext, int index) {
         return GestureDetector(
           onTap: () {
-            MaterialPageRoute materialPageRoute =
-                MaterialPageRoute(builder: (BuildContext buildContext) {
-              return DetailJob(
-                markerModel: markerModels[index],
-              );
-            });
-            Navigator.of(context).push(materialPageRoute);
+            // for Route to Show All Picture
           },
           child: Card(
             color: index % 2 == 0
@@ -119,7 +113,7 @@ class _MainHomeState extends State<MainHome> {
                   showTraderName(index),
                   showTextType(index),
                   showTextAddress(index),
-                  addMoreImage(),
+                  addMoreImage(index),
                 ],
               ),
             ),
@@ -129,13 +123,24 @@ class _MainHomeState extends State<MainHome> {
     );
   }
 
-  Widget addMoreImage() {
+  void routeToAddPhoto(int index) {
+    MaterialPageRoute materialPageRoute =
+        MaterialPageRoute(builder: (BuildContext buildContext) {
+      return DetailJob(
+        markerModel: markerModels[index],
+      );
+    });
+    Navigator.of(context).push(materialPageRoute);
+  }
+
+  Widget addMoreImage(int index) {
     return Row(mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
         IconButton(
           icon: Icon(Icons.add_photo_alternate),
           onPressed: () {
             print('You Click Add More');
+            routeToAddPhoto(index);
           },
         ),
       ],

@@ -20,8 +20,7 @@ Future<void> normalDialog(
   showDialog(
       context: context,
       builder: (BuildContext buildContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
+        return AlertDialog(shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30.0),
           ),
           title: showTitle(title),

@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -289,11 +292,63 @@ class _DetailJobState extends State<DetailJob> {
 
   Widget saveButton() {
     return FlatButton(
-      child: Text('Save'),
+      child: Text(
+        'Save',
+        style: TextStyle(color: Colors.blue.shade800),
+      ),
       onPressed: () {
+        uploadPicture();
         Navigator.of(context).pop();
       },
     );
+  }
+
+  Future<void> uploadPicture() async {
+    String url = 'https://appdb.tisi.go.th/ForApp/saveFile.php';
+
+    // Random random = new Random();
+    Random random = Random();
+    int i = random.nextInt(1000000);
+    String nameFile = 'id${currentMarkerModel.autoNo}_$i.jpg';
+    print('nameFile = $nameFile');
+
+    try {
+      Map<String, dynamic> map = Map();
+      map['file'] = UploadFileInfo(file, nameFile);
+      FormData formData = FormData.from(map);
+
+      Response response = await Dio().post(url, data: formData);
+      print('response = $response');
+      insertValueToServer(nameFile);
+    } catch (e) {
+      print('e =======>>>>>>> $e');
+    }
+  }
+
+  Future<void> insertValueToServer(String nameFile) async {
+
+    String autuNoRef = currentMarkerModel.autoNo.toString();
+    String latString = currentLatLng.latitude.toString();
+    String lngString = currentLatLng.longitude.toString();
+    String pathImage = 'https://appdb.tisi.go.th/ForApp/picture_market/$nameFile';
+    String dateUpdate = _dateTime;
+    String timeUpdate = _time;
+    String isCheck = currentMarkerModel.idCheck;
+    String descrip = _descripPic;
+
+    
+ 
+    String url =
+        'https://appdb.tisi.go.th/ForApp/addDataINPECTOR_marker_picture.php?isAdd=true&auto_no_ref=$autuNoRef&lat=$latString&lng=$lngString&path_image=$pathImage&date_update=$dateUpdate&time_update=$timeUpdate&idCheck=$isCheck&Description=$descrip';
+
+    Response response = await Dio().get(url);
+    var result = json.decode(response.data);
+    if (result.toString() == 'true') {
+      Navigator.of(context).pop();
+    } else {
+      normalDialog(context, 'Cannot Upload', 'Please Try Again');
+    }
+
   }
 
   Widget cancelButton() {
@@ -309,10 +364,11 @@ class _DetailJobState extends State<DetailJob> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        Container(width: 230.0,
+        Container(
+          width: 230.0,
           child: Text(
             string,
-            style: MyStyle().h3TextStyle,
+            style: MyStyle().h4TextStyle,
           ),
         ),
       ],
@@ -324,7 +380,9 @@ class _DetailJobState extends State<DetailJob> {
         context: context,
         builder: (BuildContext buildContext) {
           return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0),),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
+            ),
             title: showTitle(),
             content: showContent(),
             actions: <Widget>[
